@@ -3,65 +3,48 @@ from statemachine import StateMachine
 positive_adjectives = ["great","super", "fun", "entertaining", "easy"]
 negative_adjectives = ["boring", "difficult", "ugly", "bad"]
 
-def closed_state(input):
+def closed_state(input,location):
     if input == outside_button:
-        if outside_button(etage) != lift(etage):
+        if outside_button(etage) != location:
             newstate = "move_floor"
         else:
-            newstate = "opening"
+            newstate = "open"
     elif input == inside_button:
-        newstate = "move_floor"
+        newstate = "moving"
     elif input == stop:
         newstate = "stop"
     else:
         newstate = "closed"
-    return (newState, floor)
+    return (newState, location)
 
-def start_transitions(txt):
-    splitted_txt = txt.split(None,1)
-    word, txt = splitted_txt if len(splitted_txt) > 1 else (txt,"")
-    if word == "Python":
-        newState = "Python_state"
+def move_state(button_input, location):
+    if button_input == location:
+        newstate = "open"
     else:
-        newState = "error_state"
-    return (newState, txt)
+        newstate = "moving"
+    return newstate, location
 
-def python_state_transitions(txt):
-    splitted_txt = txt.split(None,1)
-    word, txt = splitted_txt if len(splitted_txt) > 1 else (txt,"")
-    if word == "is":
-        newState = "is_state"
+def open_state(sensor):
+    if sensor == on:
+        newstate = "open"
+        # Addtime
     else:
-        newState = "error_state"
-    return (newState, txt)
+        newstate = "closing"
 
-def is_state_transitions(txt):
-    splitted_txt = txt.split(None,1)
-    word, txt = splitted_txt if len(splitted_txt) > 1 else (txt,"")
-    if word == "not":
-        newState = "not_state"
-    elif word in positive_adjectives:
-        newState = "pos_state"
-    elif word in negative_adjectives:
-        newState = "neg_state"
+
+def closing_state(sensor):
+    if sensor == on:
+        newstate = "open"
+        #Addtime
     else:
-        newState = "error_state"
-    return (newState, txt)
+        newstate = "closed"
 
-def not_state_transitions(txt):
-    splitted_txt = txt.split(None,1)
-    word, txt = splitted_txt if len(splitted_txt) > 1 else (txt,"")
-    if word in positive_adjectives:
-        newState = "neg_state"
-    elif word in negative_adjectives:
-        newState = "pos_state"
-    else:
-        newState = "error_state"
-    return (newState, txt)
+def stop_state(input):
+    if input == stop:
+        newstate = "stop"
+    elif input == turnmeonpls:
+        newstate = "closed"
 
-def neg_state(txt):
-    print("Hallo")
-    return ("neg_state", "")
 
 if __name__== "__main__":
     m = StateMachine()
