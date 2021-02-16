@@ -1,8 +1,5 @@
 from statemachine import StateMachine
 
-positive_adjectives = ["great","super", "fun", "entertaining", "easy"]
-negative_adjectives = ["boring", "difficult", "ugly", "bad"]
-
 def closed_state(input,location):
     if input == outside_button:
         if outside_button(etage) != location:
