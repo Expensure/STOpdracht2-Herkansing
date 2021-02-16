@@ -47,15 +47,10 @@ def stop_state(input):
 
 
 if __name__== "__main__":
-    m = StateMachine()
-    m.add_state("Start", start_transitions)
-    m.add_state("Python_state", python_state_transitions)
-    m.add_state("is_state", is_state_transitions)
-    m.add_state("not_state", not_state_transitions)
-    m.add_state("neg_state", None, end_state=1)
-    m.add_state("pos_state", None, end_state=1)
-    m.add_state("error_state", None, end_state=1)
-    m.set_start("Start")
-    m.run("Python is great")
-    m.run("Python is easy")
-    m.run("Perl is hard")
+    FSM = StateMachine()
+    FSM.add_state("closed", closed_state)
+    FSM.add_state("moving", move_state)
+    FSM.add_state("open", open_state)
+    FSM.add_state("closing", closing_state())
+    FSM.add_state("stop", end_state=True)
+    FSM.set_start("closed")
