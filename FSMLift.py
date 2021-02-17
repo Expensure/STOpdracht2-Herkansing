@@ -30,7 +30,7 @@ def open_state(sensor):
 
 
 def closing_state(sensor):
-    if sensor == on:
+    if sensorLift:
         newstate = "open"
         #Addtime
     else:
