@@ -28,3 +28,4 @@ class StateMachine:
                 break
             else:
                 handler = self.handlers[newState.upper()]
+

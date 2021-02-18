@@ -1,19 +1,19 @@
-from statemachine import StateMachine
-
-
 class Elevator():
     def __init__(self, speed, level, wanted_list):
-        self.speed = 3  # Hoeveel meter/seconde
-        self.height = 6  # Totale lengte van de lift
+        self.speed = speed  # Hoeveel meter/seconde
+        self.height = 6  # Totale lengte van de lift in meter
         self.level_amount = 3  # Aantal etages
-        self.level = 0  # Begin etage
+        self.level = level  # Begin etage
         self.inside = 0  # Aantal mensen in de lift
-        self.destination_list = self.get_destinations()  # Lijst van alle destinations die door Humans zijn gegeven.
+        self.destination_list = wanted_list
         self.start_state = "closed"  # Begin state
         self.next_state = "closed"  # Bedoelde volgende state als waarden in init hetzelfde blijven.
         self.level_dictionary = self.level_dict(self.height, self.level_amount)  # Dictionary van alle etages en hun hoogte daarbij.
 
-    def get_destinations(self):
+    def get_level(self):
+        return None
+
+    def set_destinations(self,inputs):
         return None
 
     def level_dict(self, height, level_amount):
@@ -32,4 +32,3 @@ class Elevator():
     def get_dict(self):
         return self.level_dictionary
 
-Ele = Elevator(3,0,[])

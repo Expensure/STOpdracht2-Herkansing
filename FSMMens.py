@@ -31,6 +31,5 @@ class Human:
         return self.input
 
 
-Hum = Human()
-current_level = Hum.get_current()
-dest_level = Hum.get_destination()
+
+
