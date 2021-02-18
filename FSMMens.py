@@ -9,6 +9,13 @@ class Human:
         self.current_level = current_etage()
 
 
+    def current_etage(self, level_dict):
+        return random.choice(list(level_dict))
+
+    def wanted_etage(self, level_dict):
+        choice_level = level_dict.pop(self.current_level)
+        return random.choice(list(choice_level))
+
 
     def outside_state(IsLiftHere,ButtonPressed):
         if IsLiftHere and ButtonPressed:
