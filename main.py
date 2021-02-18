@@ -22,27 +22,27 @@ class ElevatorFSM(Elevator):
             newstate = "moving"
         return newstate, Ele.level
 
-    def open_state(self, sensor):
+    def open_state(self):
         Ele.destination_list.remove(Ele.level)
+        Countdown = 10
         # Eigenlijk timer van tien seconden
-        if sensor == on:
-            newstate = "open"
-            # Addtime gebaseerd op hoeveel nog binnen lopen
-        else:
-            newstate = "closing"
+        while Ele.sensor and Countdown < 3:
+            Countdown = 5
+            #Add 5 more seconds to avoid pancake
+        newstate = "closing"
 
     def closing_state(self, sensor):
-        if sensorLift:
+        if Ele.sensor:
             newstate = "open"
             # Addtime
         else:
             newstate = "closed"
 
-    def stop_state(self, input):
-        if input == stop:
-            newstate = "stop"
-        elif input == turnmeonpls:
-            newstate = "closed"
+    #def stop_state(self, input):
+        #if input == stop:
+            #newstate = "stop"
+        #elif input == turnmeonpls:
+            #newstate = "closed"
 
     if __name__ == "__main__":
         FSM = StateMachine()

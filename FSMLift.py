@@ -6,7 +6,8 @@ class Elevator():
         self.level = level  # Begin etage
         self.inside = 0  # Aantal mensen in de lift
         self.destination_list = wanted_list
-        self.sensor = False
+        self.sensor = False # Iemand loopt op sensor
+        self.active = True # Lift is aan
         self.start_state = "closed"  # Begin state
         self.next_state = "closed"  # Bedoelde volgende state als waarden in init hetzelfde blijven.
         self.level_dictionary = self.level_dict(self.height, self.level_amount)  # Dictionary van alle etages en hun hoogte daarbij.
