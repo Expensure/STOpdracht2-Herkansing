@@ -1,8 +1,6 @@
-from FSMMens import Human
-from FSMLift import Elevator
+from Mens import Human
+from Lift import Elevator
 from statemachine import StateMachine
-
-
 
 
 class ElevatorFSM(Elevator):
@@ -28,7 +26,7 @@ class ElevatorFSM(Elevator):
         # Eigenlijk timer van tien seconden
         while Ele.sensor and Countdown < 3:
             Countdown = 5
-            #Add 5 more seconds to avoid pancake
+            # Add 5 more seconds to avoid pancake
         newstate = "closing"
 
     def closing_state(self, sensor):
@@ -38,11 +36,11 @@ class ElevatorFSM(Elevator):
         else:
             newstate = "closed"
 
-    #def stop_state(self, input):
-        #if input == stop:
-            #newstate = "stop"
-        #elif input == turnmeonpls:
-            #newstate = "closed"
+    # def stop_state(self, input):
+    # if input == stop:
+    # newstate = "stop"
+    # elif input == turnmeonpls:
+    # newstate = "closed"
 
     if __name__ == "__main__":
         FSM = StateMachine()
@@ -59,10 +57,10 @@ class HumanSFM(Human):
         Ele.sensor = False
         if Ele.level == Hum.get_current():
             new_state = "walk_in"
-            #Add 2 tot 3 seconden
+            # Add 2 tot 3 seconden
         else:
             new_state = "outside"
-            #Voeg tijd toe tot lift er is.
+            # Voeg tijd toe tot lift er is.
         return new_state
 
     def walkin_state(self):
@@ -74,16 +72,16 @@ class HumanSFM(Human):
         Ele.sensor = False
         Hum.input = Hum.wanted_etage(get_level)
         if Ele.move_state() == "open" and Hum.input == Ele.level:
-            #Als je boven bent
+            # Als je boven bent
             new_state = "walk_out"
         else:
-            #Als wachten tot je boven bent
+            # Als wachten tot je boven bent
             new_state = "inside"
         return new_state
 
     def walkout_state(self):
         Ele.sensor = True
-        #Geef 2-3 seconden tijd
+        # Geef 2-3 seconden tijd
         new_state = "Done"
         return new_state
 
@@ -93,8 +91,9 @@ class HumanSFM(Human):
         FSM.add_state("walk_in", walkin_state)
         FSM.add_state("inside", inside_state)
         FSM.add_state("walk_out", walkout_state())
-        FSM.add_state("Done", end_state= True)
+        FSM.add_state("Done", end_state=True)
         FSM.set_start("outside")
+
 
 Ele = ElevatorFSM(3, 0, [])
 Hum = Human()
