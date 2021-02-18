@@ -1,6 +1,5 @@
-from statemachine import StateMachine
 import random
-from FSMLift import Elevator
+from Lift import Elevator
 
 Ele = Elevator(3, 0, [])
 get_level = list((Ele.get_dict()).keys())
