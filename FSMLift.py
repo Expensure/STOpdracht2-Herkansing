@@ -11,9 +11,20 @@ class Elevator():
         self.wanted_list = []
         self.start_state = "closed"
         self.next_state = "open"
-        self.level_dict = level_dict()
-    def level_list(self, height,level_amount):
-        return None
+        self.level_dict = self.level_dict()
+
+    def level_dict(self, height, level_amount):
+        #Maakt een dictionary van elke etage en gebruikt de gemiddelde afstand tussen de etages)
+        all_levels = []
+        all_heights = []
+        mean_height = height / (level_amount - 1)
+
+        for i in range(0, level_amount):
+            all_levels.append(i)
+            all_heights.append(i * mean_height)
+        dictionary = dict(zip(all_levels, all_heights))
+
+        return dictionary
 
     def closed_state(input,location):
         if input == outside_button:
@@ -22,7 +33,6 @@ class Elevator():
             else:
                 newstate = "open"
         elif input == inside_button:
-            newstate = "moving"
         elif input == stop:
             newstate = "stop"
         else:
