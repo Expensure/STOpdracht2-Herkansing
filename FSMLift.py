@@ -1,20 +1,23 @@
 from statemachine import StateMachine
-from FSMMens import Human
-HumanEntity1 = Human
+
 
 class Elevator():
     def __init__(self, speed, level, wanted_list):
-        self.speed = 3
-        self.height = 18
-        self.level_amount = 6
-        self.level = 0
-        self.wanted_list = []
-        self.start_state = "closed"
-        self.next_state = "open"
-        self.level_dict = self.level_dict()
+        self.speed = 3  # Hoeveel meter/seconde
+        self.height = 6  # Totale lengte van de lift
+        self.level_amount = 3  # Aantal etages
+        self.level = 0  # Begin etage
+        self.inside = 0  # Aantal mensen in de lift
+        self.destination_list = self.get_destinations()  # Lijst van alle destinations die door Humans zijn gegeven.
+        self.start_state = "closed"  # Begin state
+        self.next_state = "closed"  # Bedoelde volgende state als waarden in init hetzelfde blijven.
+        self.level_dictionary = self.level_dict(self.height, self.level_amount)  # Dictionary van alle etages en hun hoogte daarbij.
+
+    def get_destinations(self):
+        return None
 
     def level_dict(self, height, level_amount):
-        #Maakt een dictionary van elke etage en gebruikt de gemiddelde afstand tussen de etages)
+        # Maakt een dictionary van elke etage en gebruikt de gemiddelde afstand tussen de etages)
         all_levels = []
         all_heights = []
         mean_height = height / (level_amount - 1)
@@ -26,53 +29,7 @@ class Elevator():
 
         return dictionary
 
-    def closed_state(input,location):
-        if input == outside_button:
-            if outside_button(etage) != location:
-                newstate = "move_floor"
-            else:
-                newstate = "open"
-        elif input == inside_button:
-        elif input == stop:
-            newstate = "stop"
-        else:
-            newstate = "closed"
-        return (newState, location)
+    def get_dict(self):
+        return self.level_dictionary
 
-    def move_state(button_input, location):
-        if button_input == location:
-            newstate = "open"
-        else:
-            newstate = "moving"
-        return newstate, location
-
-    def open_state(sensor):
-        if sensor == on:
-            newstate = "open"
-            # Addtime
-        else:
-            newstate = "closing"
-
-
-    def closing_state(sensor):
-        if sensorLift:
-            newstate = "open"
-            #Addtime
-        else:
-            newstate = "closed"
-
-    def stop_state(input):
-        if input == stop:
-            newstate = "stop"
-        elif input == turnmeonpls:
-            newstate = "closed"
-
-
-    if __name__== "__main__":
-        FSM = StateMachine()
-        FSM.add_state("closed", closed_state)
-        FSM.add_state("moving", move_state)
-        FSM.add_state("open", open_state)
-        FSM.add_state("closing", closing_state())
-        FSM.add_state("stop", end_state=True)
-        FSM.set_start("closed")
+Ele = Elevator(3,0,[])

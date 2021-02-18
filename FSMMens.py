@@ -1,52 +1,36 @@
 from statemachine import StateMachine
 import random
+from FSMLift import Elevator
+
+Ele = Elevator(3, 0, [])
+get_level = list((Ele.get_dict()).keys())
+
+
 class Human:
-    entrancetime = random.randint(2,3)
-    def __init__(self, start_state: str, next_state: str, level, input):
+    entrancetime = random.randint(2, 3)
+
+    def __init__(self):
         self.start_state = "outside"
         self.next_state = "walkin_state"
-        self.input = wanted_etage()
-        self.current_level = current_etage()
+        self.current_level = self.current_etage(get_level)
+        self.input = self.wanted_etage(get_level)
+
+    def current_etage(self, get_level):
+        return int(random.choice(get_level))
+
+    def get_current(self):
+        return self.current_level
+
+    def wanted_etage(self, get_level):
+        temp_level = get_level
+        new = self.get_current()
+        temp_level.remove(new)
+        return random.choice(temp_level)
+
+    def get_destination(self):
+        return self.input
 
 
-    def current_etage(self, level_dict):
-        return random.choice(list(level_dict))
-
-    def wanted_etage(self, level_dict):
-        choice_level = level_dict.pop(self.current_level)
-        return random.choice(list(choice_level))
-
-
-    def outside_state(IsLiftHere,ButtonPressed):
-        if IsLiftHere and ButtonPressed:
-            new_state = "walk_in"
-        else:
-            new_state = "outside"
-        return new_state
-
-    def walkin_state():
-        sensorLift = True
-        new_state = "inside"
-        return new_state
-
-    def inside_state(ButtonPressed):
-        selectButton
-        #Gebruik button pressed later om voorrang te geven naar etage
-        if FromEtage != ThisEtage and DoorOpen and wantedEtage:
-            new_state = "walk_out"
-        else:
-            new_state = "inside"
-        return new_state
-
-    def walkout_state():
-        sensorLift = True
-        new_state = "outside_done"
-        return new_state
-
-    if __name__== "__main__":
-        FSM = StateMachine()
-        FSM.add_state("outside", outside_state,)
-        FSM.add_state("walk_in", walkin_state)
-        FSM.add_state("inside", inside_state)
-        FSM.add_state("walk_out", walkout_state())
-        FSM.set_start("outside")
+Hum = Human()
+current_level = Hum.get_current()
+dest_level = Hum.get_destination()
