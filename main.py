@@ -2,15 +2,7 @@ from FSMMens import Human
 from FSMLift import Elevator
 from statemachine import StateMachine
 
-Ele = Elevator(3, 0, [])
-Hum = Human()
 
-Ele.destination_list.append(Hum.get_current())
-Ele.destination_list.append(Hum.get_destination())
-if Ele.level in Ele.destination_list:
-    new_state = "Yay"
-else:
-    new_state = "Move"
 
 
 class ElevatorFSM(Elevator):
@@ -64,6 +56,7 @@ class ElevatorFSM(Elevator):
 
 class HumanSFM(Human):
     def outside_state(self, IsLiftHere):
+        Ele.sensor = False
         if Ele.level == Hum.get_current():
             new_state = "walk_in"
             #Add 2 tot 3 seconden
@@ -73,22 +66,25 @@ class HumanSFM(Human):
         return new_state
 
     def walkin_state(self):
-        sensorLift = True
+        Ele.sensor = True
         new_state = "inside"
         return new_state
 
-    def inside_state(self, ButtonPressed):
-        selectButton
-        # Gebruik button pressed later om voorrang te geven naar etage
-        if FromEtage != ThisEtage and DoorOpen and wantedEtage:
+    def inside_state(self):
+        Ele.sensor = False
+        Hum.input = Hum.wanted_etage(get_level)
+        if Ele.move_state() == "open" and Hum.input == Ele.level:
+            #Als je boven bent
             new_state = "walk_out"
         else:
+            #Als wachten tot je boven bent
             new_state = "inside"
         return new_state
 
     def walkout_state(self):
-        sensorLift = True
-        new_state = "outside_done"
+        Ele.sensor = True
+        #Geef 2-3 seconden tijd
+        new_state = "Done"
         return new_state
 
     if __name__ == "__main__":
@@ -97,4 +93,15 @@ class HumanSFM(Human):
         FSM.add_state("walk_in", walkin_state)
         FSM.add_state("inside", inside_state)
         FSM.add_state("walk_out", walkout_state())
+        FSM.add_state("Done", end_state= True)
         FSM.set_start("outside")
+
+Ele = ElevatorFSM(3, 0, [])
+Hum = Human()
+get_level = list((Ele.get_dict()).keys())
+Ele.destination_list.append(Hum.get_current())
+Ele.destination_list.append(Hum.get_destination())
+if Ele.level in Ele.destination_list:
+    new_state = "Yay"
+else:
+    new_state = "Move"
