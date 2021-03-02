@@ -5,7 +5,8 @@ class Elevator():
         self.level_amount = 3  # Aantal etages
         self.level = level  # Begin etage
         self.inside = 0  # Aantal mensen in de lift
-        self.destination_list = wanted_list
+        self.get_target = self.set_destinations()
+        self.destination_list = []
         self.sensor = False # Iemand loopt op sensor
         self.active = True # Lift is aan
         self.start_state = "closed"  # Begin state
@@ -15,9 +16,17 @@ class Elevator():
     def get_level(self):
         return None
 
-    def set_destinations(self,inputs):
+    def set_destinations(self):
+        # For every human
+            # If any human in inside state:
+                # Get wanted_list from all humans
+                # Go to closest from this list
+                # If elevator meets another current_etage:
+                    # Go there first
+            # Else
+                # Get current_etages from all humans
+                # Go to closest from this list
         return None
-
     def level_dict(self, height, level_amount):
         # Maakt een dictionary van elke etage en gebruikt de gemiddelde afstand tussen de etages)
         all_levels = []

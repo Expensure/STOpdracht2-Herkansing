@@ -1,25 +1,27 @@
 from Mens import Human
 from Lift import Elevator
 from statemachine import StateMachine
-
 class ElevatorFSM(Elevator):
-    def closed_state(self):
+    def closed_state(self,time):
+        time += 0.5
         if Ele.level in Ele.destination_list:
             newstate = "open"
         elif Ele.destination_list != []:
             newstate = "move_floor"
         else:
             newstate = "closed"
-        return newstate
+        return newstate,time
 
-    def move_state(self):
-        if Ele.level in Ele.destination_list:
+    def move_state(self,time):
+        time += 3.0
+        if Ele.level in Ele.get_target:
             newstate = "open"
         else:
             newstate = "moving"
-        return newstate
+        return newstate,time
 
-    def open_state(self):
+    def open_state(self,time):
+        time += 11.5
         Ele.destination_list.remove(Ele.level)
         Countdown = 10
         # Eigenlijk timer van tien seconden
@@ -27,15 +29,17 @@ class ElevatorFSM(Elevator):
             Countdown = 5
             # Add 5 more seconds to avoid pancake
         newstate = "closing"
-        return newstate
+        return newstate,time
 
-    def closing_state(self):
+    def closing_state(self,time):
+        time += 1.5
         if Ele.sensor:
             newstate = "open"
             # Addtime
         else:
             newstate = "closed"
-        return newstate
+        return newstate,time
+
     # def stop_state(self, input):
     # if input == stop:
     # newstate = "stop"
@@ -50,6 +54,7 @@ class ElevatorFSM(Elevator):
         FSMElevator.add_state("closing", closing_state)
         FSMElevator.add_state("stop",None, end_state=True)
         FSMElevator.set_start("closed")
+        FSMElevator.run()
 
 
 class HumanSFM(Human):

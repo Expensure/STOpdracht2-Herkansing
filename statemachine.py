@@ -3,8 +3,9 @@ class StateMachine:
         self.handlers = {}
         self.startState = None
         self.endStates = []
+        self.time = 0
 
-    def add_state(self, name, handler, end_state=False):
+    def add_state(self, name, handler, end_state=False ):
         name = name.upper()
         self.handlers[name] = handler
         if end_state:
@@ -22,9 +23,9 @@ class StateMachine:
             raise InitializationError("at least one state must be an end_state")
 
         while True:
-            (newState, cargo) = handler(cargo)
+            newState, cargo = handler(cargo)
+            print(f"reached {newState} within {cargo}")
             if newState.upper() in self.endStates:
-                print("reached ", newState)
                 break
             else:
                 handler = self.handlers[newState.upper()]
