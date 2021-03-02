@@ -2,23 +2,22 @@ from Mens import Human
 from Lift import Elevator
 from statemachine import StateMachine
 
-
 class ElevatorFSM(Elevator):
-    def closed_state(self, input, location):
+    def closed_state(self):
         if Ele.level in Ele.destination_list:
             newstate = "open"
         elif Ele.destination_list != []:
             newstate = "move_floor"
         else:
             newstate = "closed"
-        return newstate, location
+        return newstate
 
     def move_state(self):
         if Ele.level in Ele.destination_list:
             newstate = "open"
         else:
             newstate = "moving"
-        return newstate, Ele.level
+        return newstate
 
     def open_state(self):
         Ele.destination_list.remove(Ele.level)
@@ -28,14 +27,15 @@ class ElevatorFSM(Elevator):
             Countdown = 5
             # Add 5 more seconds to avoid pancake
         newstate = "closing"
+        return newstate
 
-    def closing_state(self, sensor):
+    def closing_state(self):
         if Ele.sensor:
             newstate = "open"
             # Addtime
         else:
             newstate = "closed"
-
+        return newstate
     # def stop_state(self, input):
     # if input == stop:
     # newstate = "stop"
@@ -43,13 +43,13 @@ class ElevatorFSM(Elevator):
     # newstate = "closed"
 
     if __name__ == "__main__":
-        FSM = StateMachine()
-        FSM.add_state("closed", closed_state)
-        FSM.add_state("moving", move_state)
-        FSM.add_state("open", open_state)
-        FSM.add_state("closing", closing_state())
-        FSM.add_state("stop", end_state=True)
-        FSM.set_start("closed")
+        FSMElevator = StateMachine()
+        FSMElevator.add_state("closed", closed_state)
+        FSMElevator.add_state("moving", move_state)
+        FSMElevator.add_state("open", open_state)
+        FSMElevator.add_state("closing", closing_state)
+        FSMElevator.add_state("stop",None, end_state=True)
+        FSMElevator.set_start("closed")
 
 
 class HumanSFM(Human):
@@ -86,13 +86,13 @@ class HumanSFM(Human):
         return new_state
 
     if __name__ == "__main__":
-        FSM = StateMachine()
-        FSM.add_state("outside", outside_state, )
-        FSM.add_state("walk_in", walkin_state)
-        FSM.add_state("inside", inside_state)
-        FSM.add_state("walk_out", walkout_state())
-        FSM.add_state("Done", end_state=True)
-        FSM.set_start("outside")
+        FSMHuman = StateMachine()
+        FSMHuman.add_state("outside", outside_state)
+        FSMHuman.add_state("walk_in", walkin_state)
+        FSMHuman.add_state("inside", inside_state)
+        FSMHuman.add_state("walk_out", walkout_state)
+        FSMHuman.add_state("Done", None, end_state=True)
+        FSMHuman.set_start("outside")
 
 
 Ele = ElevatorFSM(3, 0, [])
