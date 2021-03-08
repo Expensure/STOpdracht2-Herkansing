@@ -1,24 +1,19 @@
 import random
-from Lift import Elevator
 import simpy
-
-Ele = Elevator(3, 0, [])
-get_level = list((Ele.get_dict()).keys())
 
 
 class Human(object):
-    def __init__(self, env, other, start_etage, eind_etage, walk_time=2):
+    def __init__(self, env, start_level, end_level, other, walk_time=2):
         self.walk_time = walk_time
         self.env = env
         self.other = other
-        self.start_etage = start_etage
-        self.eind_etage = eind_etage
-
+        self.level = start_level
+        self.eind_etage = end_level
         self.action = env.process(self.run())
 
     def run(self):
         print(
-            f'human presses elevator button at %d from level {self.start_etage}.' % self.env.now)  # mens staat bij lift deur.
+            f'Human presses elevator button at %d from level {self.level}.' % self.env.now)  # mens staat bij lift deur.
 
         # add start_etage to destinations
 
@@ -36,8 +31,6 @@ class Human(object):
                         if self.other.state:  # lift is op eind_etage.
                             print(f'human walks out lift at %d' % self.env.now)
                             yield self.env.process(self.wachttijd(self.walk_time))
-
-                            print(f'human is at disiard level %d' % self.env.now)
                             break
 
                         else:
@@ -56,7 +49,7 @@ class Human(object):
         return int(random.choice(get_level))
 
     def get_current(self):
-        return self.current_level
+        return None
 
     def wanted_etage(self, get_level):
         temp_level = get_level
@@ -64,8 +57,8 @@ class Human(object):
         return random.choice(temp_level)
 
     def get_destination(self):
-        return self.input
+        return None
 
 
-
-
+env = simpy.Environment()
+env.run(until=80)
