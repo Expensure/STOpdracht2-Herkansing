@@ -7,7 +7,6 @@ def main(tijd):
     Ele = Elevator(env, 1)
     levellist = list(Ele.level_dictionary.keys())
     Hum1 = Human(levellist,env, Ele)
-    Hum2 = Human(levellist,env, Ele)
     env.run(until=tijd)
     print(f"Simulation gestopt op: {tijd}")
 
