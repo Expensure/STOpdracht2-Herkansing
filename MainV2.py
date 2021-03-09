@@ -39,13 +39,15 @@ class Elevator(object):
     def set_destinations(self):
         if not self.destination_list:
             return None
-        else:
-            shortest = 100
-            for i in self.destination_list:
-                diff = abs((self.level - i))
-                if diff < shortest:
-                    shortest = diff
-            return shortest
+        if self.level in self.destination_list:
+            return None
+        shortest = 100
+        for i in self.destination_list:
+            diff = abs((self.level - i))
+            if diff < shortest:
+                shortest = diff
+                gohere = i
+        return gohere
 
     def level_dict(self, height, level_amount):
         # Maakt een dictionary van elke etage en gebruikt de gemiddelde afstand tussen de etages)
@@ -66,11 +68,14 @@ class Elevator(object):
     def run(self):
         while True:
             if self.destination_list:
-                print(f'Elevator starts moving at %d moving from {self.level} to {self.destination}' % self.env.now)
-                move_duration = self.find_duration_moving()
-                self.level = self.destination
+                print(self.destination_list)
                 self.destination = self.set_destinations()
-                yield self.env.process(self.charge(move_duration))
+                if self.destination != None:
+                    print(f'Elevator starts moving at %d moving from {self.level} to {self.destination}' % self.env.now)
+                    move_duration = self.find_duration_moving()
+                    self.level = self.destination
+                    self.destination_list.remove(self.level)
+                    yield self.env.process(self.charge(move_duration))
 
                 print('Elevator starts opening at %d' % self.env.now)
                 door_duration = 2
@@ -145,17 +150,15 @@ class Human(object):
     # return None
     def run(self):
         while self.lives > 0:
-
             self.level = self.set_level()  # mens kiest start etage.
             self.destination = self.set_destination(self.level)  # mens kiest eind etage
 
             print(
-                f'Human presses elevator button at %d from level {self.level}.' % self.env.now)  # mens staat bij lift deur.
+                f'Human presses elevator button at %d from level {self.level}. wanting to go to {self.destination}' % self.env.now)  # mens staat bij lift deur.
             self.other.destination_list.append(self.level)
             self.give_current(self.level)
 
             while True:
-
                 try:
                     if self.other.state == 1 and self.level == self.other.level:  # lift is op etage mens en deur is open
                         print(f'human walks in lift at %d' % self.env.now)
@@ -167,7 +170,7 @@ class Human(object):
                         self.give_destination(self.destination)
 
                         while True:
-                            if self.other.state and self.other.level == "TODO" and self.state == 1:  # lift is op eind_etage.
+                            if self.other.state and self.other.level == self.destination and self.state == 1:  # lift is op eind_etage.
                                 self.state = 2
                                 print(f'human walks out lift at %d' % self.env.now)
                                 yield self.env.process(self.wachttijd(self.walk_time))
