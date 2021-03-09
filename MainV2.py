@@ -6,7 +6,8 @@ def main(tijd):
     env = simpy.Environment()
     Ele = Elevator(env, 1)
     levellist = list(Ele.level_dictionary.keys())
-    Hum1 = Human(levellist, env, Ele)
+    Hum1 = Human(levellist, env, Ele, "Henk")
+    Hum2 = Human(levellist, env, Ele, "Karin")
     env.run(until=tijd)
     print(f"Simulation gestopt op: {tijd}")
 
@@ -42,6 +43,7 @@ class Elevator(object):
         if self.level in self.destination_list:
             return None
         shortest = 100
+        gohere = None
         for i in self.destination_list:
             diff = abs((self.level - i))
             if diff < shortest:
@@ -105,7 +107,8 @@ class Elevator(object):
 
 
 class Human(object):
-    def __init__(self, level_list, env, other, walk_time=2, lives=3):
+    def __init__(self, level_list, env, other,name, walk_time=2, lives=3):
+        self.name = name
         self.level_list = level_list
         self.walk_time = walk_time
         self.lives = lives
@@ -154,25 +157,27 @@ class Human(object):
             self.destination = self.set_destination(self.level)  # mens kiest eind etage
 
             print(
-                f'Human presses elevator button at %d from level {self.level}. wanting to go to {self.destination}' % self.env.now)  # mens staat bij lift deur.
-            self.other.destination_list.append(self.level)
+                f'{self.name} presses elevator button at %d from level {self.level}. wanting to go to {self.destination}' % self.env.now)  # mens staat bij lift deur.
+            if self.level not in self.other.destination_list:
+                self.other.destination_list.append(self.level)
             self.give_current(self.level)
 
             while True:
                 try:
-                    if self.other.state == 1 and self.level == self.other.level:  # lift is op etage mens en deur is open
-                        print(f'human walks in lift at %d' % self.env.now)
+                    if self.other.state == 1 and self.level == self.other.level and self.state == 0:  # lift is op etage mens en deur is open
+                        print(f'{self.name} walks in lift at %d' % self.env.now)
                         self.state = 1
                         yield self.env.process(self.wachttijd(self.walk_time))
 
-                        print(f'human is in lift at %d' % self.env.now)
+                        print(f'{self.name} is in lift at %d' % self.env.now)
 
                         self.give_destination(self.destination)
 
                         while True:
                             if self.other.state and self.other.level == self.destination and self.state == 1:  # lift is op eind_etage.
-                                self.state = 2
-                                print(f'human walks out lift at %d' % self.env.now)
+                                print(f'{self.name} walks out lift at %d' % self.env.now)
+                                self.state = 0
+
                                 yield self.env.process(self.wachttijd(self.walk_time))
                                 yield self.env.process(self.wachttijd(16))
                                 self.lives -= 1

@@ -5,7 +5,7 @@ def main(tijd):
     env = simpy.Environment()
     Ele = Elevator(env, 1)
     levellist = list(Ele.level_dictionary.keys())
-    Hum1 = Human(levellist, env, Ele)
+    Hum1 = Human(levellist, env, Ele, "Mongool1")
     env.run(until=tijd)
     print(f"Simulation gestopt op: {tijd}")
 
@@ -109,7 +109,8 @@ class Elevator(object):
 
 
 class Human(object):
-    def __init__(self, level_list, env, other, walk_time=2):
+    def __init__(self, level_list, env, other,name, walk_time=2):
+        self.name = name
         self.level_list = level_list
         self.walk_time = walk_time
         self.env = env
@@ -144,23 +145,23 @@ class Human(object):
 
     def run(self):
         print(
-            f'Human presses elevator button at %d from level {self.level}.' % self.env.now)  # mens staat bij lift deur.
+            f'{self.name} presses elevator button at %d from level {self.level}.' % self.env.now)  # mens staat bij lift deur.
         self.give_current(self.level) ##########
         while True:
             try:
                 if self.other.state == 1 and self.level == self.other.level:  # lift is op etage mens en deur is open
-                    print(f'Human walks in lift at %d' % self.env.now)
+                    print(f'{self.name} walks in lift at %d' % self.env.now)
                     self.state = 1
                     yield self.env.process(self.wachttijd(self.walk_time))
 
-                    print(f'Human is in lift at %d' % self.env.now)
+                    print(f'{self.name} is in lift at %d' % self.env.now)
                     self.give_destination(self.destination) ##########
                     print(self.other.destination_list)
 
                     while True:
                         if self.other.state and self.other.level == "TODO" and self.state == 1:  # lift is op eind_etage.
                             self.state = 2
-                            print(f'human walks out lift at %d' % self.env.now)
+                            print(f'{self.name} walks out lift at %d' % self.env.now)
                             yield self.env.process(self.wachttijd(self.walk_time))
                             yield self.env.process(self.wachttijd(16))
                             break
