@@ -113,7 +113,7 @@ class Human(object):
         self.walk_time = walk_time
         self.lives = lives
         self.env = env
-        self.level = self.set_level()
+        self.level = 0
         self.destination = self.set_destination(self.level)
         self.other = other
         self.action = env.process(self.run())
@@ -132,39 +132,23 @@ class Human(object):
         temp_levels.remove(level)
         return random.choice(temp_levels)
 
-    # def set_destination(self, current_level):
-    # return None
-
-    # def wachttijd(self, duration):
-    # yield self.env.timeout(duration)
-
-    # def current_etage(self, get_level):
-    # return int(random.choice(get_level))
-
-    # def get_current(self, level):
-    # return level
-
-    # def wanted_etage(self, get_level, current_level):
-    # temp_level = get_level
-    # temp_level.remove(self.get_current(current_level))
-    # return random.choice(temp_level)
-
-    # def get_destination(self):
-    # return None
     def run(self):
         while self.lives > 0:
-            self.level = self.set_level()  # mens kiest start etage.
+            error_avoid = False
+            #self.level = self.set_level()  # mens kiest start etage.
             self.destination = self.set_destination(self.level)  # mens kiest eind etage
 
             print(
                 f'{self.name} presses elevator button at %d from level {self.level}. wanting to go to {self.destination}' % self.env.now)  # mens staat bij lift deur.
             if self.level not in self.other.destination_list:
-                self.other.destination_list.append(self.level)
-            self.give_current(self.level)
-
+                if self.level != self.other.level:
+                    self.give_current(self.level)
+                else:
+                    error_avoid = True
             while True:
                 try:
-                    if self.other.state == 1 and self.level == self.other.level and self.state == 0:  # lift is op etage mens en deur is open
+                    if (self.other.state == 1 and self.level == self.other.level and self.state == 0) or error_avoid :  # lift is op etage mens en deur is open
+                        error_avoid = False
                         print(f'{self.name} walks in lift at %d' % self.env.now)
                         self.state = 1
                         yield self.env.process(self.wachttijd(self.walk_time))
@@ -176,7 +160,7 @@ class Human(object):
                         while True:
                             if self.other.state and self.other.level == self.destination and self.state == 1:  # lift is op eind_etage.
                                 print(f'{self.name} walks out lift at %d' % self.env.now)
-                                self.state = 0
+                                self.state = 2
 
                                 yield self.env.process(self.wachttijd(self.walk_time))
                                 yield self.env.process(self.wachttijd(16))
