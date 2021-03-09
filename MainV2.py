@@ -99,9 +99,10 @@ class Elevator(object):
 
 
 class Human(object):
-    def __init__(self, level_list, env, other, walk_time=2):
+    def __init__(self, level_list, env, other, walk_time=2, lives=3):
         self.level_list = level_list
         self.walk_time = walk_time
+        self.lives = lives
         self.env = env
         self.level = self.set_level()
         self.destination = self.set_destination(self.level)
@@ -121,7 +122,6 @@ class Human(object):
             temp_levels.remove(destination)
         temp_levels.remove(level)
         return random.choice(temp_levels)
-
 
     # def set_destination(self, current_level):
     # return None
@@ -143,42 +143,49 @@ class Human(object):
     # def get_destination(self):
     # return None
     def run(self):
-        print(
-            f'Human presses elevator button at %d from level {self.level}.' % self.env.now)  # mens staat bij lift deur.
-        self.other.destination_list.append(self.level)
-        """ 
-            add level to destinations
-        """
-        while True:
+        while self.lives > 0:
 
-            try:
-                if self.other.state == 1 and self.level == self.other.level:  # lift is op etage mens en deur is open
-                    print(f'human walks in lift at %d' % self.env.now)
-                    self.state = 1
-                    yield self.env.process(self.wachttijd(self.walk_time))
+            self.level = self.set_level()  # mens kiest start etage.
+            self.destination = self.set_destination(self.level)  # mens kiest eind etage
 
-                    print(f'human is in lift at %d' % self.env.now)
+            print(
+                f'Human presses elevator button at %d from level {self.level}.' % self.env.now)  # mens staat bij lift deur.
+            self.other.destination_list.append(self.level)
+            """ 
+                add level to destinations
+            """
+            while True:
 
-                    """ 
-                    add eind_etage to destinations
-                    """
+                try:
+                    if self.other.state == 1 and self.level == self.other.level:  # lift is op etage mens en deur is open
+                        print(f'human walks in lift at %d' % self.env.now)
+                        self.state = 1
+                        yield self.env.process(self.wachttijd(self.walk_time))
 
-                    while True:
-                        if self.other.state and self.other.level == "TODO" and self.state == 1:  # lift is op eind_etage.
-                            self.state = 2
-                            print(f'human walks out lift at %d' % self.env.now)
-                            yield self.env.process(self.wachttijd(self.walk_time))
-                            yield self.env.process(self.wachttijd(16))
-                            break
+                        print(f'human is in lift at %d' % self.env.now)
 
-                        else:
-                            yield self.env.process(self.wachttijd(1))  # Iedere seconde dat mens wacht op de lift.
+                        """ 
+                        add eind_etage to destinations
+                        """
 
-                else:
-                    yield self.env.process(self.wachttijd(1))  # Iedere seconde dat mens wacht op de lift.
+                        while True:
+                            if self.other.state and self.other.level == "TODO" and self.state == 1:  # lift is op eind_etage.
+                                self.state = 2
+                                print(f'human walks out lift at %d' % self.env.now)
+                                yield self.env.process(self.wachttijd(self.walk_time))
+                                yield self.env.process(self.wachttijd(16))
+                                self.lives -= 1
+                                break
 
-            except simpy.Interrupt:
-                pass
+                            else:
+                                yield self.env.process(self.wachttijd(1))  # Iedere seconde dat mens wacht op de lift.
+
+                    else:
+                        yield self.env.process(self.wachttijd(1))  # Iedere seconde dat mens wacht op de lift.
+
+                except simpy.Interrupt:
+                    self.lives -= 1
+                    pass
 
     def wachttijd(self, duration):
         yield self.env.timeout(duration)
@@ -197,6 +204,3 @@ class Human(object):
     def get_destination(self):
         return None
 
-
-if __name__ == '__main__':
-    main(500)
