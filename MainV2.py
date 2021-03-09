@@ -1,14 +1,20 @@
 import simpy
 import random
+
+
 def main(tijd):
     env = simpy.Environment()
-    Ele = Elevator(env,1)
-    Hum1 = Human(env, Ele)
+    Ele = Elevator(env, 1)
+    levellist = list(Ele.level_dictionary.keys())
+    Hum1 = Human(levellist,env, Ele)
+    Hum2 = Human(levellist,env, Ele)
     env.run(until=tijd)
     print(f"Simulation gestopt op: {tijd}")
+
+
 class Elevator(object):
     def __init__(self, env, speed):
-        self.state = 0 #0 = dicht, #1 = moving, #2 = open
+        self.state = 0  # 0 = dicht, #1 = moving, #2 = open
         self.speed = speed  # Hoeveel meter/seconde
         self.height = 12  # Totale lengte van de lift in meter
         self.level_amount = 5  # Aantal etages
@@ -16,34 +22,33 @@ class Elevator(object):
         self.inside = 0  # Aantal mensen in de lift
         self.destination_list = []
         self.destination = self.set_destinations()
-        self.sensor = False # Iemand loopt op sensor
-        self.active = True # Lift is aan
+        self.sensor = False  # Iemand loopt op sensor
+        self.active = True  # Lift is aan
         self.start_state = "closed"  # Begin state
         self.next_state = "closed"  # Bedoelde volgende state als waarden in init hetzelfde blijven.
-        self.level_dictionary = self.level_dict(self.height, self.level_amount)  # Dictionary van alle etages en hun hoogte daarbij.
+        self.level_dictionary = self.level_dict(self.height,
+                                                self.level_amount)  # Dictionary van alle etages en hun hoogte daarbij.
         self.env = env
         self.action = env.process(self.run())
-    def get_level(self):
-        return None
 
-    def find_duration(self):
+    def find_duration_moving(self):
         current = self.level_dictionary[self.level]
         destination = self.level_dictionary[self.destination]
         if current > destination:
-            return (current-destination) / self.speed
-        return (destination-current) / self.speed
+            return (current - destination) / self.speed
+        return (destination - current) / self.speed
 
     def set_destinations(self):
         # For every human
-            # If any human in inside state:
-                # Get wanted_list from all humans
-                # Go to closest from this list
-                # If elevator meets another current_etage:
-                    # Go there first
-            # Else
-                # Get current_etages from all humans
-                # Go to closest from this list
-        return random.randint(0,4)
+        # If any human in inside state:
+        # Get wanted_list from all humans
+        # Go to closest from this list
+        # If elevator meets another current_etage:
+        # Go there first
+        # Else
+        # Get current_etages from all humans
+        # Go to closest from this list
+        return random.randint(0, 4)
 
     def level_dict(self, height, level_amount):
         # Maakt een dictionary van elke etage en gebruikt de gemiddelde afstand tussen de etages)
@@ -63,9 +68,8 @@ class Elevator(object):
 
     def run(self):
         while True:
-
             print(f'Elevator starts moving at %d moving from {self.level} to {self.destination}' % self.env.now)
-            move_duration = self.find_duration()
+            move_duration = self.find_duration_moving()
             self.level = self.destination
             self.destination = self.set_destinations()
             yield self.env.process(self.charge(move_duration))
@@ -76,13 +80,13 @@ class Elevator(object):
 
             print(f'Elevator is open at %d' % self.env.now)
             self.state = 1
-            open_duration, total_open_duration = 10,10
+            open_duration, total_open_duration = 10, 10
             while open_duration < 0:
                 if open_duration < 3 and self.sensor == True:
-                    total_open_duration += 5-open_duration
+                    total_open_duration += 5 - open_duration
                     open_duration = 5
                     self.sensor = False
-                total_open_duration+= 5
+                total_open_duration += 5
             yield self.env.process(self.charge(total_open_duration))
 
             print('Elevator starts closing at %d' % self.env.now)
@@ -96,38 +100,76 @@ class Elevator(object):
 
 
 class Human(object):
-    def __init__(self, env, other, walk_time=2):
+    def __init__(self, level_list, env, other, walk_time=2):
+        self.level_list = level_list
         self.walk_time = walk_time
         self.env = env
+        self.level = self.set_level()
+        self.destination = self.set_destination(self.level)
         self.other = other
-        self.level = 0
-        self.eind_etage = 2 #self.wanted_etage(other.level)
         self.action = env.process(self.run())
         self.state = 0
+
+    def set_level(self, destination=''):
+        if destination == '':
+            return random.choice(self.level_list)
+        else:
+            return destination
+
+    def set_destination(self, level, destination=''):
+        temp_levels = self.level_list.copy()
+        if destination != '':
+            temp_levels.remove(destination)
+        temp_levels.remove(level)
+        return random.choice(temp_levels)
+
+
+    # def set_destination(self, current_level):
+    # return None
+
+    # def wachttijd(self, duration):
+    # yield self.env.timeout(duration)
+
+    # def current_etage(self, get_level):
+    # return int(random.choice(get_level))
+
+    # def get_current(self, level):
+    # return level
+
+    # def wanted_etage(self, get_level, current_level):
+    # temp_level = get_level
+    # temp_level.remove(self.get_current(current_level))
+    # return random.choice(temp_level)
+
+    # def get_destination(self):
+    # return None
     def run(self):
         print(
             f'Human presses elevator button at %d from level {self.level}.' % self.env.now)  # mens staat bij lift deur.
-
-        # add start_etage to destinations
-
+        self.other.destination_list.append(self.level)
+        """ 
+            add level to destinations
+        """
         while True:
+
             try:
-                if self.other.state == 1 and self.level == self.other.level: # lift is op etage mens en deur is open
+                if self.other.state == 1 and self.level == self.other.level:  # lift is op etage mens en deur is open
                     print(f'human walks in lift at %d' % self.env.now)
                     self.state = 1
                     yield self.env.process(self.wachttijd(self.walk_time))
 
                     print(f'human is in lift at %d' % self.env.now)
 
-                    # add eind_etage to destinations
+                    """ 
+                    add eind_etage to destinations
+                    """
 
                     while True:
-                        if self.other.state and self.other.level == self.eind_etage and self.state == 1:  # lift is op eind_etage.
+                        if self.other.state and self.other.level == "TODO" and self.state == 1:  # lift is op eind_etage.
                             self.state = 2
                             print(f'human walks out lift at %d' % self.env.now)
                             yield self.env.process(self.wachttijd(self.walk_time))
                             yield self.env.process(self.wachttijd(16))
-                            self.level,self.eind_etage = self.eind_etage,self.wanted_etage(self.level)
                             break
 
                         else:
@@ -145,7 +187,7 @@ class Human(object):
     def current_etage(self, get_level):
         return int(random.choice(get_level))
 
-    def get_current(self,level):
+    def get_current(self, level):
         return level
 
     def wanted_etage(self, get_level, current_level):
