@@ -6,6 +6,7 @@ def main(tijd):
     env = simpy.Environment()
     Ele = Elevator(env, 1)
     levellist = list(Ele.level_dictionary.keys())
+    levellist.remove(-1)
     Hum1 = Human(levellist, env, Ele, "Henk")
     Hum2 = Human(levellist, env, Ele, "Karin")
     env.run(until=tijd)
@@ -17,8 +18,8 @@ class Elevator(object):
         self.state = 0  # 0 = dicht, #1 = moving, #2 = open
         self.speed = speed  # Hoeveel meter/seconde
         self.height = 12  # Totale lengte van de lift in meter
-        self.level_amount = 5  # Aantal etages
-        self.level = 0  # Begin etage
+        self.level_amount = 3  # Aantal etages
+        self.level = -1  # Begin etage
         self.inside = 0  # Aantal mensen in de lift
         self.destination_list = []
         self.destination = self.set_destinations()
@@ -28,6 +29,8 @@ class Elevator(object):
         self.next_state = "closed"  # Bedoelde volgende state als waarden in init hetzelfde blijven.
         self.level_dictionary = self.level_dict(self.height,
                                                 self.level_amount)  # Dictionary van alle etages en hun hoogte daarbij.
+        print(self.level_dictionary)
+        self.level_dictionary.update({-1 : 0})
         self.env = env
         self.action = env.process(self.run())
 
@@ -135,7 +138,7 @@ class Human(object):
     def run(self):
         while self.lives > 0:
             error_avoid = False
-            #self.level = self.set_level()  # mens kiest start etage.
+            self.level = self.set_level()  # mens kiest start etage.
             self.destination = self.set_destination(self.level)  # mens kiest eind etage
 
             print(
@@ -158,8 +161,9 @@ class Human(object):
                         self.give_destination(self.destination)
 
                         while True:
-                            if self.other.state and self.other.level == self.destination and self.state == 1:  # lift is op eind_etage.
+                            if (self.other.state == 1 and self.other.level == self.destination and self.state == 1):  # lift is op eind_etage.
                                 print(f'{self.name} walks out lift at %d' % self.env.now)
+                                print(self.name,self.destination, self.other.level, self.level)
                                 self.state = 2
 
                                 yield self.env.process(self.wachttijd(self.walk_time))
