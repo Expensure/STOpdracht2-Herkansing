@@ -4,7 +4,7 @@ from colorama import Fore, Back, Style
 
 def main(tijd):
     env = simpy.Environment()
-    Ele = Elevator(env, 1)
+    Ele = Elevator(env, 1, 0)
     levellist = list(Ele.level_dictionary.keys())
     levellist.remove(-1)
     Hum1 = Human(levellist, env, Ele, "Sofie")
@@ -21,7 +21,7 @@ def main(tijd):
 
 
 class Elevator(object):
-    def __init__(self, env, speed):
+    def __init__(self, env, speed, alive_count):
         self.state = 0  # 0 = dicht, #1 = moving, #2 = open
         self.speed = speed  # Hoeveel meter/seconde
         self.height = 12  # Totale lengte van de lift in meter
@@ -39,7 +39,7 @@ class Elevator(object):
         self.level_dictionary.update({-1: 0})  # Voegt uit staat toe.
         self.env = env
         self.action = env.process(self.run())
-
+        self.alive_count = alive_count
     def find_duration_moving(self):
         current = self.level_dictionary[self.level]
         destination = self.level_dictionary[self.destination]
@@ -174,7 +174,9 @@ class Human(object):
                                     and self.other.level == self.destination
                                     and self.state == 1):  # lift is op eind_etage.
                                 if self.lives == 1:
-                                    print(Fore.RED + f'### FINISH RUN ###    {self.name} walks out elevator at %d.'  % self.env.now + Style.RESET_ALL+Fore.GREEN+' They are completely done now.' + Style.RESET_ALL)
+                                    self.other.alive_count += 1
+                                    print(Fore.RED + f'### FINISH RUN ###    {self.name} walks out elevator at %d.'  % self.env.now
+                                          + Style.RESET_ALL+Fore.GREEN+' They are completely done now.' + Style.RESET_ALL + f"{self.other.alive_count} out of 8 done")
                                 else:
                                     print(Fore.RED + f'### FINISH RUN ###    {self.name} walks out elevator at %d. They will, after a while, go to another level.' % self.env.now + Style.RESET_ALL)
                                 self.state = 2
