@@ -1,6 +1,7 @@
 import simpy
 import random
-from colorama import Fore, Back, Style
+from colorama import Fore, Style
+
 
 def main(tijd):
     env = simpy.Environment()
@@ -22,24 +23,22 @@ def main(tijd):
 
 class Elevator(object):
     def __init__(self, env, speed, alive_count):
-        self.state = 0  # 0 = dicht, #1 = moving, #2 = open
-        self.speed = speed  # Hoeveel meter/seconde
-        self.height = 12  # Totale lengte van de lift in meter
-        self.level_amount = 5 # Aantal etages waar mensen uit kunnen kiezen.
-        self.level = -1  # Begin etage, is eigenlijk een uit-staat.
-        self.inside = 0  # Aantal mensen in de lift
-        self.destination_list = []
-        self.destination = self.set_destinations()
-        self.sensor = False  # Iemand loopt op sensor
-        self.active = True  # Lift is aan
-        self.start_state = "closed"  # Begin state
-        self.next_state = "closed"  # Bedoelde volgende state als waarden in init hetzelfde blijven.
+        self.state = 0  # 0 = closed, #1 = moving, #2 = open
+        self.speed = speed  # speed of elevator moving up and down
+        self.height = 12  # Length of elevator shaft
+        self.level_amount = 5  # Humans have choice from these levels
+        self.level = -1  # Starting level, AKA stop state
+        self.inside = 0  # Amount of humans in elevator
+        self.destination_list = []  # All starts and destinations from all humans.
+        self.destination = self.set_destinations()  # Selects new target to go to next
+        self.sensor = False  # Trigger when someone enters elevator
         self.level_dictionary = self.level_dict(self.height,
-                                                self.level_amount)  # Dictionary van alle etages en hun hoogte daarbij.
-        self.level_dictionary.update({-1: 0})  # Voegt uit staat toe.
-        self.env = env
+                                self.level_amount)  # Dictionary of all levels and respective height in elevatorshaft
+        self.level_dictionary.update({-1: 0})  # Adds the stop state level
+        self.env = env  # Base environment
         self.action = env.process(self.run())
-        self.alive_count = alive_count
+        self.alive_count = alive_count  # Amount of people who havent finished the three rounds
+
     def find_duration_moving(self):
         current = self.level_dictionary[self.level]
         destination = self.level_dictionary[self.destination]
@@ -116,14 +115,14 @@ class Elevator(object):
 
 class Human(object):
     def __init__(self, level_list, env, other, name, walk_time=2, lives=3):
-        self.name = name
-        self.level_list = level_list
-        self.walk_time = walk_time
-        self.lives = lives
-        self.env = env
-        self.level = 0
-        self.destination = ''
-        self.other = other
+        self.name = name  # Name for human to distinguish them
+        self.level_list = level_list  # Choice of these levels to move to / start at
+        self.walk_time = walk_time  # Time cost to get human in and out the elevator.
+        self.lives = lives  # Human can go this amount of times into elevator.
+        self.env = env  # Base environment
+        self.level = 0  # Current level
+        self.destination = ''  # Current destination
+        self.other = other   # Elevator element
         self.action = env.process(self.run())
         self.state = 0
 
@@ -145,9 +144,9 @@ class Human(object):
             self.level = self.set_level()  # mens kiest start etage.
             self.destination = self.set_destination(self.level)  # mens kiest eind etage
 
-            print(Fore.RED+
-                f'###START###   {self.name} presses elevator button at %d from level {self.level}. wanting to go to '
-                f'{self.destination}. Dit is ronde {abs(4-self.lives)}' % self.env.now + Style.RESET_ALL)  # mens staat bij lift deur.
+            print(Fore.RED +
+                  f'###START###   {self.name} presses elevator button at %d from level {self.level}. wanting to go to '
+                  f'{self.destination}. Dit is ronde {abs(4 - self.lives)}' % self.env.now + Style.RESET_ALL)  # mens staat bij lift deur.
             if self.level not in self.other.destination_list:
                 if self.level != self.other.level:
                     self.give_current(self.level)
@@ -158,7 +157,7 @@ class Human(object):
             while True:
                 try:
                     if (
-                            self.other.state == 1 # lift is open
+                            self.other.state == 1  # lift is open
                             and self.level == self.other.level  # lift is op hetzelfde niveau als deze human
                             and self.state == 0):  # Human is niet al op bestemming geweest
                         self.state = 1
@@ -175,10 +174,12 @@ class Human(object):
                                     and self.state == 1):  # lift is op eind_etage.
                                 if self.lives == 1:
                                     self.other.alive_count += 1
-                                    print(Fore.RED + f'### FINISH RUN ###    {self.name} walks out elevator at %d.'  % self.env.now
-                                          + Style.RESET_ALL+Fore.GREEN+' They are completely done now.' + Style.RESET_ALL + f"{self.other.alive_count} out of 8 done")
+                                    print(
+                                        Fore.RED + f'### FINISH RUN ###    {self.name} walks out elevator at %d.' % self.env.now
+                                        + Style.RESET_ALL + Fore.GREEN + ' They are completely done now.' + Style.RESET_ALL + f"{self.other.alive_count} out of 8 done")
                                 else:
-                                    print(Fore.RED + f'### FINISH RUN ###    {self.name} walks out elevator at %d. They will, after a while, go to another level.' % self.env.now + Style.RESET_ALL)
+                                    print(
+                                        Fore.RED + f'### FINISH RUN ###    {self.name} walks out elevator at %d. They will, after a while, go to another level.' % self.env.now + Style.RESET_ALL)
                                 self.state = 2
 
                                 yield self.env.process(self.wachttijd(self.walk_time))
